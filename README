@@ -1,0 +1,78 @@
+Liam Wynn, 5/11/2017, dep
+
+dep is an interesting project. It is basically an interview question I got. I am supposed
+to finish this by the 16th of this month, but I sincerely doubt I will. Nonetheless, I'd
+like to do this project because it is a great learning experience. Here is the question,
+as presented to me.
+
+
+The program should be called dep. It should take two arguments: the path of a configuration
+file and a target name. The program should output the tree of dependencies for the target.
+The grammar of the config file is:
+
+File = FilePiece*
+FilePiece = Comment | BlankLine | IncludeLine | Target
+Comment = /#[^\n]*\n/
+BlankLine = /\s*\n/
+IncludeLine = 'include' /\s+/ Path '\n'
+Path = /"/'/'? PathComponent ('/' PathComponent)*
+PathComponent = /\w+/
+Target = 'target' /\s+/ TargetName '\n' DependencyLine* BlankName
+DependendcyLine = 'depends on' /\s+/ TargetName '\n'
+
+Given the following config files:
+
+1. (/main.conf)
+# This is a comment
+
+include "sub1/sub1.conf"
+include "sub2/sub2.conf"
+
+target main
+depends on foo
+depends on bar
+
+target x
+depends on foo
+
+target y
+depends on bar
+depends on baz
+
+target z
+depends on zprime
+
+2. (/sub1/sub1.conf)
+include "sub11/sub11.conf"
+
+target foo
+depends on foo1
+depends on foo2
+
+target foo1
+
+target zprime
+depends on waldo
+
+3. (/sub2/sub2.conf)
+target bar
+depends on bar1
+
+target bar1
+
+target baz
+
+4. (sub1/sub11/sub11.conf)
+target foo2
+
+The outputs should be as follows:
+
+#dep main.conf main
+main(foo(foo1, foo2), bar(bar1))
+
+dep main.conf y
+y(bar(bar1), baz)
+
+dep main.conf z
+target z(zprime(waldo)) not foind
+(/sub1/sub1.conf:10)
